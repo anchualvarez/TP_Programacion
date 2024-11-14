@@ -81,7 +81,6 @@ cars_data = [
     ('Kia', 'Sorento', 2023, 35000, 'Nuevo')
 ]
 
-
 # Insertar cada auto en la base de datos
 def insert_multiple_cars():
     for car in cars_data:
