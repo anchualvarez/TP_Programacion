@@ -92,13 +92,6 @@ def add_auto():
         # En caso de error en la consulta
         conn.close()
         return jsonify({"error": f"Error al agregar auto: {e}"}), 500
-    
-#    cursor.execute("INSERT INTO autos (id, marca, modelo, año_creacion, precio_usd, condicion) VALUES (?, ?, ?, ?, ?, ?)",
-#                   (id, marca, modelo, año_creacion, precio_usd, condicion))
-#    conn.commit()
-#    conn.close()
-
-#    return jsonify({"message": "Auto agregado con éxito"}), 201
 
 # Endpoint para ver el precio en pesos de un auto específico
 @app.route("/precio_pesos/<int:auto_id>", methods=["GET"])

@@ -63,7 +63,7 @@ def agregar_auto():
         print(f"Error en la solicitud: {response.status_code} - {response.text}")
 
 
-# Función para ver el precio en pesos de un auto específico
+# Función para ver el precio en pesos de un auto específico PREGUNTAR COMO PONER DOLARES TB
 def ver_precio_en_pesos():
     auto_id = int(input("Ingrese el ID del auto para ver el precio en pesos: "))
     response = requests.get(f"{base_url}/precio_pesos/{auto_id}")

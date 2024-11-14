@@ -18,6 +18,7 @@ def create_tables():
             condicion TEXT CHECK(condicion IN ('Nuevo', 'Usado')) NOT NULL
         )
     ''')
+    
     # Crear tabla de clientes con columnas para registrar nombre y edad
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS clientes (
