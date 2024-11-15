@@ -1,7 +1,9 @@
 import requests
 import json
+from app import Cliente
 
 base_url = "http://127.0.0.1:5000"
+
 
 # Función para registrar un cliente nuevo
 def registrar_cliente():
@@ -12,7 +14,9 @@ def registrar_cliente():
     try:
         response = requests.post(f"{base_url}/clientes", json=data)
         response.raise_for_status()
-        print(response.json())
+        cliente_data = response.json()
+        nuevo_cliente = Cliente (cliente_data["id"], cliente_data['nombre'], cliente_data['edad'])
+        print(f"Cliente registrado: {nuevo_cliente}")
     except requests.exceptions.RequestException as e:
         print(f"Error al registrar el cliente: {e}")
 
@@ -21,18 +25,22 @@ def ver_cliente():
     cliente_id = int(input("Ingrese el ID del cliente que desea consultar: "))
     response = requests.get(f"{base_url}/clientes/{cliente_id}")
     if response.status_code == 200:
-        print("Información del cliente:", response.json())
+        cliente_data = response.json()
+        cliente = Cliente(cliente_data["id"], cliente_data["nombre"], cliente_data["edad"])
+        print("Información del cliente:", cliente)
     else:
         print("Error:", response.json().get("error", "Cliente no encontrado"))
-        
+
 # Función para ver todos los clientes
 def ver_clientes():
     response = requests.get(f"{base_url}/clientes")
-    clientes = response.json()
+    clientes_data = response.json()
+    
+    clientes = [Cliente(cliente['id'], cliente['nombre'], cliente['edad']) for cliente in clientes_data]
     
     print("\nClientes disponibles:")
     for cliente in clientes:
-        print(json.dumps(cliente, indent=4))
+        print(cliente)
 
 # Función para ver todos los autos disponibles
 def ver_autos():
@@ -88,8 +96,8 @@ def eliminar_auto():
     auto_id = input("Ingresa el ID del auto que deseas eliminar: ")
     
     try:
-        auto_id = int(auto_id)  # Convertir el ID a un entero
-        # Solicitar la eliminación del auto a la API
+        auto_id = int(auto_id) 
+        
         response = requests.delete(f"{base_url}/autos/{auto_id}")
         
         if response.status_code == 200:
@@ -100,19 +108,18 @@ def eliminar_auto():
     except ValueError:
         print("Por favor ingresa un ID válido.")
         
-# Funcion para actualizar un auto segun su id --> ACA HAY ERRORES
+# Funcion para actualizar un auto segun su ID
 def actualizar_auto():
     auto_id = int (input("Ingresa el ID del auto del que deseas actualizar el precio: "))
     
     try:
         nuevo_precio = int (input("Ingresa el nuevo precio del auto: "))
-
-        # Solicitar la actualización del precio del auto a la API
-        response = requests.put(f"{base_url}/autos/{auto_id}", json={"precio_usd": nuevo_precio})
+        print(f"Actualizando el auto ID {auto_id} con el nuevo precio: {nuevo_precio}")
+        
+        response = requests.put(f"{base_url}/autos/{auto_id}", json = {"precio_usd": nuevo_precio})
         
         if response.status_code == 200:
-            # Obtener los datos actualizados del auto
-            auto_actualizado = response.json()
+            auto_actualizado = response.json()  # Obtener los datos actualizados del auto
             print("Datos del auto actualizado:")
             print(auto_actualizado)  # Esto mostrará todos los datos del auto, incluyendo el nuevo precio
         else:
@@ -135,7 +142,7 @@ def main():
         print("7: Ver últimos 5 autos ingresados")
         print("8: Eliminar un auto")
         print("9: Actualizar un auto")
-        print("10: Salir")
+        print("0: Salir")
 
         opcion = input("Selecciona una opción: ")
         
@@ -157,7 +164,7 @@ def main():
             eliminar_auto()
         elif opcion == "9":
             actualizar_auto()
-        elif opcion == "10":
+        elif opcion == "0":
             print("Saliendo del programa.")
             break
         else:
