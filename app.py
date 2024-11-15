@@ -14,6 +14,16 @@ def connect_to_database():
         print(f"Error al conectar a la base de datos '{DATABASE}': {error_conexion}")
         return None
 
+class Cliente:
+    def __init__(self, id, nombre, edad):
+        self.id = id
+        self.nombre = nombre
+        self.edad = edad
+
+    def __repr__(self):
+        return f"Cliente(id={self.id}, nombre='{self.nombre}', edad={self.edad})"
+
+
 # id, marca, modelo, año_creacion, precio_usd, condicion
 
 @app.route("/")
@@ -80,12 +90,17 @@ def add_auto():
         # Confirmar los cambios y cerrar la conexión
         conn.commit()
         conn.close()
+        
+        # Get the last inserted auto id
+        auto_id = cursor.lastrowid
 
-        return jsonify({"message": "Auto agregado con éxito"}), 201
+        return (f"El auto ({marca}, {modelo}) fue agregado con exito, su id {auto_id}"), 201
+
     except sqlite3.Error as e:
         # En caso de error en la consulta
         conn.close()
         return jsonify({"error": f"Error al agregar auto: {e}"}), 500
+
 
 # Endpoint para ver el precio en pesos de un auto específico
 @app.route("/precio_pesos/<int:auto_id>", methods=["GET"])
@@ -169,24 +184,20 @@ def delete_auto(auto_id):
 # Endpoints para clientes
 
 # Endpoint para ver todos los clientes
+
 @app.route("/clientes", methods=["GET"])
 def get_clientes():
     conn = connect_to_database()
     cursor = conn.cursor()
-
     cursor.execute("SELECT * FROM clientes")
-    clientes = cursor.fetchall()
+    clientes_data = cursor.fetchall()
     conn.close()
 
-    clean_clientes = []
-    for cliente in clientes:
-        clean_clientes.append({
-            "id": cliente[0],
-            "nombre": cliente[1],
-            "edad": cliente[2],
-            })
-        
-    return jsonify(clean_clientes), 200
+    # Crear una lista de instancias de Cliente
+    clientes = [Cliente(cliente[0], cliente[1], cliente[2]) for cliente in clientes_data]
+    
+    # Devolver la lista de clientes
+    return jsonify([{"id": cliente.id, "nombre": cliente.nombre, "edad": cliente.edad} for cliente in clientes]), 200
 
 
 # Registrar un nuevo cliente
@@ -208,8 +219,13 @@ def add_cliente():
     cursor = conn.cursor()
     cursor.execute("INSERT INTO clientes (nombre, edad) VALUES (?, ?)", (nombre, edad))
     conn.commit()
+    cliente_id = cursor.lastrowid
     conn.close()
-    return jsonify({"message": "Cliente registrado con éxito"}), 201
+    
+    nuevo_cliente = Cliente (cliente_id, nombre, edad)  # Crear una instancia de Cliente
+    return jsonify({"id": nuevo_cliente.id, "nombre": nuevo_cliente.nombre, "edad": nuevo_cliente.edad}), 201
+
+    #return jsonify({"message": "Cliente registrado con éxito"}), 201
 
 # Obtener información de un cliente específico
 @app.route("/clientes/<int:cliente_id>", methods=["GET"])
@@ -217,12 +233,12 @@ def get_cliente(cliente_id):
     conn = connect_to_database()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM clientes WHERE id = ?", (cliente_id,))
-    cliente = cursor.fetchone()
+    cliente_data = cursor.fetchone()
     conn.close()
 
-    if cliente:
-        cliente_data = {"id": cliente[0], "nombre": cliente[1], "edad": cliente[2]}
-        return jsonify(cliente_data), 200
+    if cliente_data:
+        cliente = Cliente(cliente_data[0], cliente_data[1], cliente_data[2])  # Crear una instancia de Cliente
+        return jsonify({"id": cliente.id, "nombre": cliente.nombre, "edad": cliente.edad}), 200
     else:
         return jsonify({"error": "Cliente no encontrado"}), 404
 
@@ -256,4 +272,3 @@ def get_ultimos_autos_vistos(): # cliente_id
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
-
