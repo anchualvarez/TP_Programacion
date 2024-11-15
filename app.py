@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 import sqlite3
 import requests
-from datetime import datetime
 
 app = Flask(__name__)
 DATABASE = 'autos.db'
@@ -30,11 +29,6 @@ def get_autos():
     cursor.execute("SELECT * FROM autos")
     autos = cursor.fetchall()
     conn.close()
-
-#    clean_autos = [
-#       {"id": auto[0], "marca": auto[1], "modelo": auto[2], "año_creacion": auto[3], "precio_usd": auto[4], "condicion": auto[5]}
-#        for auto in autos
-#    ]
  
     clean_autos = []
     for auto in autos:
@@ -54,19 +48,19 @@ def get_autos():
 def add_auto():
     data = request.get_json()
     
-    print(data)  # Imprime los datos recibidos
+#    print(data)  # Imprime los datos recibidos
     
     if not data:
         return jsonify ({"Error": "No se recibieron datos"}), 400
     
-    id = data.get("id") #?
+#    id = data.get("id") 
     marca = data.get("marca")
     modelo = data.get("modelo")
     año_creacion = data.get("año_creacion")
     precio_usd = data.get("precio_usd")
     condicion = data.get("condicion")
 
-    if not (id and marca and modelo and año_creacion and precio_usd and condicion):
+    if not (marca and modelo and año_creacion and precio_usd and condicion):
         return jsonify({"Error": "Faltan datos necesarios"}), 400
 
     try:
@@ -79,9 +73,9 @@ def add_auto():
     
     try:
         cursor.execute("""
-            INSERT INTO autos (id, marca, modelo, año_creacion, precio_usd, condicion) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (id, marca, modelo, año_creacion, precio_usd, condicion))
+            INSERT INTO autos (marca, modelo, año_creacion, precio_usd, condicion) 
+            VALUES (?, ?, ?, ?, ?)
+        """, (marca, modelo, año_creacion, precio_usd, condicion))
 
         # Confirmar los cambios y cerrar la conexión
         conn.commit()
@@ -101,9 +95,14 @@ def precio_pesos(auto_id):
         conn = connect_to_database()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT precio_usd FROM autos WHERE id = ?", [auto_id])
-        precio_usd = cursor.fetchone()[0]
+        cursor.execute("SELECT * FROM autos WHERE id = ?", [auto_id])
+        auto = cursor.fetchone()
         conn.close()
+        
+        if auto is None:
+            return jsonify ({"error": "Auto no encontrado"})
+        
+        id, marca, modelo, año_creacion, precio_usd, condicion = auto
 
         # Obtener tipo de cambio de la API de BlueLytics
         response = requests.get("https://api.bluelytics.com.ar/v2/latest")
@@ -111,29 +110,49 @@ def precio_pesos(auto_id):
 
         # Calcular precio en pesos
         precio_en_pesos = precio_usd * tipo_cambio
-        return jsonify({"precio_en_pesos": precio_en_pesos}), 200
+        
+        auto_con_precio = {
+            "id": id,
+            "marca": marca,
+            "modelo": modelo,
+            "año_creacion": año_creacion,
+            "precio_usd": precio_usd,
+            "precio_pesos": round (precio_en_pesos, 2),
+            "condicion": condicion
+            }
+        return jsonify(auto_con_precio), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Endpoint para actualizar un auto existente
+# Endpoint para actualizar un auto existente --> ERRORES
 @app.route("/autos/<int:auto_id>", methods=["PUT"])
 def update_auto(auto_id):
     data = request.get_json()
-    marca = data.get("marca")
-    modelo = data.get("modelo")
-    año_creacion = data.get("año_creacion")
     precio_usd = data.get("precio_usd")
-    condicion = data.get("condicion")
 
     conn = connect_to_database()
     cursor = conn.cursor()
 
-    cursor.execute("UPDATE autos SET marca = ?, modelo = ?, año_creacion = ?, precio_usd = ?, condicion = ? WHERE id = ?",
-                   (marca, modelo, año_creacion, precio_usd, condicion, auto_id))
+    cursor.execute("UPDATE autos SET precio_usd = ? WHERE id = ?",
+                   (precio_usd, auto_id))
     conn.commit()
+    cursor.execute("SELECT * FROM autos WHERE id = ?", (auto_id,))
+    auto_actualizado = cursor.fetchone()
     conn.close()
+    
+    if auto_actualizado is None:
+        return jsonify ({"error": "Auto no encontrado"}), 404
 
-    return jsonify({"message": "Auto actualizado con éxito"}), 200
+    auto_data = {
+        "id": auto_actualizado[0],
+        "marca": auto_actualizado[1],
+        "modelo": auto_actualizado[2],
+        "año_creacion": auto_actualizado[3],
+        "precio_usd": auto_actualizado[4],
+        "condicion": auto_actualizado[5],
+    }
+    
+    return jsonify(auto_data), 200
 
 # Endpoint para eliminar un auto
 @app.route("/autos/<int:auto_id>", methods=["DELETE"])
@@ -149,12 +168,41 @@ def delete_auto(auto_id):
 
 # Endpoints para clientes
 
+# Endpoint para ver todos los clientes
+@app.route("/clientes", methods=["GET"])
+def get_clientes():
+    conn = connect_to_database()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM clientes")
+    clientes = cursor.fetchall()
+    conn.close()
+
+    clean_clientes = []
+    for cliente in clientes:
+        clean_clientes.append({
+            "id": cliente[0],
+            "nombre": cliente[1],
+            "edad": cliente[2],
+            })
+        
+    return jsonify(clean_clientes), 200
+
+
 # Registrar un nuevo cliente
 @app.route("/clientes", methods=["POST"])
 def add_cliente():
     data = request.get_json()
     nombre = data.get("nombre")
     edad = data.get("edad")
+    
+    if not nombre or not edad:
+        return jsonify ({"error": "Faltan dtos necesarios"}), 400
+
+    try:
+        edad = int(edad)  # Asegúrate de convertir la edad a un entero
+    except ValueError:
+        return jsonify({"error": "La edad debe ser un número válido"}), 400
 
     conn = connect_to_database()
     cursor = conn.cursor()
@@ -208,5 +256,4 @@ def get_ultimos_autos_vistos(): # cliente_id
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
-
 
