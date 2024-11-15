@@ -95,3 +95,4 @@ if __name__ == "__main__":
 # Insertar los autos en la base de datos
 insert_multiple_cars()
 
+
