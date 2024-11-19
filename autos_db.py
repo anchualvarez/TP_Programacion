@@ -14,7 +14,7 @@ def create_tables():
             marca TEXT NOT NULL,
             modelo TEXT NOT NULL,
             año_creacion INTEGER NOT NULL,
-            precio_usd REAL NOT NULL,
+            precio_usd INTEGER NOT NULL,
             condicion TEXT CHECK(condicion IN ('Nuevo', 'Usado')) NOT NULL
         )
     ''')
@@ -24,7 +24,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS clientes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nombre TEXT NOT NULL,
-            edad INTEGER
+            edad INTEGER NOT NULL
         )
     ''')
 
@@ -81,6 +81,7 @@ cars_data = [
     ('Kia', 'Sorento', 2023, 35000, 'Nuevo')
 ]
 
+
 # Insertar cada auto en la base de datos
 def insert_multiple_cars():
     for car in cars_data:
@@ -93,4 +94,3 @@ if __name__ == "__main__":
 
 # Insertar los autos en la base de datos
 insert_multiple_cars()
-

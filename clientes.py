@@ -1,23 +1,46 @@
 import requests
 import json
+from app import Cliente
 
 base_url = "http://127.0.0.1:5000"
+
 
 # Función para registrar un cliente nuevo
 def registrar_cliente():
     nombre = input("Ingrese su nombre para registrarse: ")
-    data = {"nombre": nombre}
-    response = requests.post(f"{base_url}/clientes", json=data)
-    print(response.json())
+    edad = input("Ingrese su edad: ")
+    data = {"nombre": nombre, "edad": edad}
+    
+    try:
+        response = requests.post(f"{base_url}/clientes", json=data)
+        response.raise_for_status()
+        cliente_data = response.json()
+        nuevo_cliente = Cliente (cliente_data["id"], cliente_data['nombre'], cliente_data['edad'])
+        print(f"Cliente registrado: {nuevo_cliente}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error al registrar el cliente: {e}")
 
 # Función para consultar información de un cliente específico
 def ver_cliente():
     cliente_id = int(input("Ingrese el ID del cliente que desea consultar: "))
     response = requests.get(f"{base_url}/clientes/{cliente_id}")
     if response.status_code == 200:
-        print("Información del cliente:", response.json())
+        cliente_data = response.json()
+        cliente = Cliente(cliente_data["id"], cliente_data["nombre"], cliente_data["edad"])
+        print("Información del cliente:", cliente)
     else:
         print("Error:", response.json().get("error", "Cliente no encontrado"))
+
+# Función para ver todos los clientes
+def ver_clientes():
+    response = requests.get(f"{base_url}/clientes")
+    clientes_data = response.json()
+    
+    clientes = [Cliente(cliente['id'], cliente['nombre'], cliente['edad']) for cliente in clientes_data]
+    
+    print("\nClientes disponibles:")
+    for cliente in clientes:
+        print(cliente)
 
 # Función para ver todos los autos disponibles
 def ver_autos():
@@ -37,7 +60,7 @@ def agregar_auto():
     marca = input("Marca del auto: ")
     modelo = input("Modelo del auto: ")
     año_creacion = int(input("Año de creación: "))
-    precio_usd = float(input("Precio en USD (con decimal): "))
+    precio_usd = int(input("Precio en USD: "))
     condicion = input("Condición (Nuevo/Usado): ")
     
     data = {
@@ -48,19 +71,7 @@ def agregar_auto():
         "condicion": condicion
     }
     response = requests.post(f"{base_url}/add_autos", json=data)
-#    print(response.json())
-
-    # Verificar el código de estado de la respuesta
-    print(f"Código de estado: {response.status_code}")
-    
-    # Si la respuesta no es 200, mostramos el contenido de la respuesta
-    if response.status_code == 200:
-        try:
-            print(response.json())  # Intentamos leer el JSON
-        except ValueError:
-            print("La respuesta no es un JSON válido:", response.text)
-    else:
-        print(f"Error en la solicitud: {response.status_code} - {response.text}")
+    print(response.json())
 
 
 # Función para ver el precio en pesos de un auto específico PREGUNTAR COMO PONER DOLARES TB
@@ -85,8 +96,8 @@ def eliminar_auto():
     auto_id = input("Ingresa el ID del auto que deseas eliminar: ")
     
     try:
-        auto_id = int(auto_id)  # Convertir el ID a un entero
-        # Solicitar la eliminación del auto a la API
+        auto_id = int(auto_id) 
+        
         response = requests.delete(f"{base_url}/autos/{auto_id}")
         
         if response.status_code == 200:
@@ -96,6 +107,27 @@ def eliminar_auto():
     
     except ValueError:
         print("Por favor ingresa un ID válido.")
+        
+# Funcion para actualizar un auto segun su ID
+def actualizar_auto():
+    auto_id = int (input("Ingresa el ID del auto del que deseas actualizar el precio: "))
+    
+    try:
+        nuevo_precio = int (input("Ingresa el nuevo precio del auto: "))
+        print(f"Actualizando el auto ID {auto_id} con el nuevo precio: {nuevo_precio}")
+        
+        response = requests.put(f"{base_url}/autos/{auto_id}", json = {"precio_usd": nuevo_precio})
+        
+        if response.status_code == 200:
+            auto_actualizado = response.json()  # Obtener los datos actualizados del auto
+            print("Datos del auto actualizado:")
+            print(auto_actualizado)  # Esto mostrará todos los datos del auto, incluyendo el nuevo precio
+        else:
+            print(f"Error al actualizar el precio del auto: {response.json().get('Error', 'No actualizado')}")
+    
+    except ValueError:
+        print("Por favor ingresa un ID y un precio válidos")
+
 
 # Menú principal de la aplicación
 def main():
@@ -103,12 +135,14 @@ def main():
         print("\n--- Menú de Opciones ---")
         print("1: Registrar cliente")
         print("2: Ver información de un cliente")
-        print("3: Ver autos disponibles")
-        print("4: Agregar un auto nuevo")
-        print("5: Ver precio en pesos de un auto")
-        print("6: Ver últimos autos ingresados")
-        print("7: Eliminar un auto")
-        print("8: Salir")
+        print("3: Ver clientes creados")
+        print("4: Ver autos disponibles")
+        print("5: Agregar un auto nuevo")
+        print("6: Ver precio en pesos de un auto")
+        print("7: Ver últimos 5 autos ingresados")
+        print("8: Eliminar un auto")
+        print("9: Actualizar un auto")
+        print("0: Salir")
 
         opcion = input("Selecciona una opción: ")
         
@@ -117,16 +151,20 @@ def main():
         elif opcion == "2":
             ver_cliente()
         elif opcion == "3":
-            ver_autos()
-        elif opcion == "4":
-            agregar_auto()
+            ver_clientes()
+        elif opcion == "4": 
+            ver_autos()  
         elif opcion == "5":
-            ver_precio_en_pesos()
+            agregar_auto() 
         elif opcion == "6":
-            ver_ultimos_autos()
+            ver_precio_en_pesos()
         elif opcion == "7":
-            eliminar_auto()
+            ver_ultimos_autos()
         elif opcion == "8":
+            eliminar_auto()
+        elif opcion == "9":
+            actualizar_auto()
+        elif opcion == "0":
             print("Saliendo del programa.")
             break
         else:
