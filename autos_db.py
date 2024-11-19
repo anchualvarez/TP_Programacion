@@ -93,4 +93,10 @@ if __name__ == "__main__":
     create_tables()
 
 # Insertar los autos en la base de datos
+<<<<<<< HEAD
 insert_multiple_cars()
+=======
+insert_multiple_cars()
+
+
+>>>>>>> 540a1ea5b507bad2ac6faf240b33d929277908c4

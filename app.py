@@ -271,4 +271,8 @@ def get_ultimos_autos_vistos(): # cliente_id
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     app.run(debug=True, port=5000)
+=======
+    app.run(debug=True, port=5000)
+>>>>>>> 540a1ea5b507bad2ac6faf240b33d929277908c4
