@@ -1,6 +1,7 @@
 import requests
 import json
 from app import Cliente
+from graficos import generar_his, generar_bar  # Importar las funciones de gráficos
 
 base_url = "http://127.0.0.1:5000"
 
@@ -142,6 +143,8 @@ def main():
         print("7: Ver últimos 5 autos ingresados")
         print("8: Eliminar un auto")
         print("9: Actualizar un auto")
+        print("10: Grafico: histograma de precios")
+        print("11: Grafico: de barras de los mas caros")
         print("0: Salir")
 
         opcion = input("Selecciona una opción: ")
@@ -164,6 +167,12 @@ def main():
             eliminar_auto()
         elif opcion == "9":
             actualizar_auto()
+        elif opcion == "10":
+            print("Generando el histograma de precios...")
+            generar_his()
+        elif opcion == "11":
+            print("Generando el gráfico de autos...")
+            generar_bar()
         elif opcion == "0":
             print("Saliendo del programa.")
             break
