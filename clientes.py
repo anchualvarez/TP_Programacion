@@ -143,8 +143,8 @@ def main():
         print("7: Ver últimos 5 autos ingresados")
         print("8: Eliminar un auto")
         print("9: Actualizar un auto")
-        print("10: Grafico: histograma de precios")
-        print("11: Grafico: de barras de los mas caros")
+        print("10: Histograma (Frecuencias de precios)")
+        print("11: Grafico de barras (Los 10 autos mas caros)")
         print("0: Salir")
 
         opcion = input("Selecciona una opción: ")
@@ -168,10 +168,10 @@ def main():
         elif opcion == "9":
             actualizar_auto()
         elif opcion == "10":
-            print("Generando el histograma de precios...")
+            print("Generando grafico...")
             generar_his()
         elif opcion == "11":
-            print("Generando el gráfico de autos...")
+            print("Generando gráfico...")
             generar_bar()
         elif opcion == "0":
             print("Saliendo del programa.")

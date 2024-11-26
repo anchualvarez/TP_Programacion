@@ -1,0 +1,31 @@
+id,marca,modelo,año_creacion,precio_usd,condicion
+1,Toyota,Corolla,2024,25000,Nuevo
+2,Honda,Civic,2023,24000,Nuevo
+3,Ford,Focus,2022,22000,Nuevo
+4,Chevrolet,Malibu,2021,21000,Usado
+5,BMW,X5,2023,55000,Nuevo
+6,Audi,A4,2020,35000,Usado
+7,Volkswagen,Golf,2021,28000,Usado
+8,Hyundai,Elantra,2022,19000,Nuevo
+9,Kia,Forte,2022,21000,Nuevo
+10,Mercedes-Benz,C-Class,2023,45000,Nuevo
+11,Nissan,Altima,2020,24000,Usado
+12,Subaru,Outback,2022,35000,Nuevo
+13,Mazda,CX-5,2021,30000,Usado
+14,Chevrolet,Impala,2019,22000,Usado
+15,Honda,Accord,2023,27000,Nuevo
+16,Toyota,Camry,2021,28000,Usado
+17,BMW,3 Series,2022,40000,Nuevo
+18,Audi,Q5,2023,55000,Nuevo
+19,Ford,Mustang,2022,35000,Nuevo
+20,Chrysler,Pacifica,2020,37000,Usado
+21,Ram,1500,2023,45000,Nuevo
+22,Jeep,Grand Cherokee,2021,42000,Usado
+23,GMC,Sierra,2022,46000,Nuevo
+24,Lexus,RX,2023,50000,Nuevo
+25,Toyota,Highlander,2020,39000,Usado
+26,Honda,Pilot,2022,45000,Nuevo
+27,Ford,Expedition,2021,48000,Usado
+28,BMW,X3,2020,42000,Usado
+29,Hyundai,Santa Fe,2021,33000,Usado
+30,Kia,Sorento,2023,35000,Nuevo
