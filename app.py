@@ -91,7 +91,7 @@ def add_auto():
         conn.commit()
         conn.close()
         
-        # Get the last inserted auto id
+        # Ultimo id ingresado
         auto_id = cursor.lastrowid
 
         return jsonify({"message": f"El auto ({marca}, {modelo}) fue agregado con éxito", "id": auto_id}), 201

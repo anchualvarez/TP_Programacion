@@ -75,7 +75,14 @@ def agregar_auto():
     
     # Me daba error pq no era json, asi que lo chequeo con un try por si falla no me rompa el programa
     try:
-        print(response.json())
+        # Acceder a los valores del JSON
+        json_data = response.json()
+        mensaje = json_data["message"]
+        auto_id = json_data["id"]
+        
+        # Imprimir el mensaje y el ID
+        print(f"{mensaje}. El ID asignado es: {auto_id}")
+    
     except requests.exceptions.JSONDecodeError:
         print("Error al decodificar la respuesta como JSON. Verifica el servidor.")
 
