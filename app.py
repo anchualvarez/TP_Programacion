@@ -118,7 +118,7 @@ def precio_pesos(auto_id):
         if auto is None:
             return jsonify ({"error": "Auto no encontrado"})
         
-        id, marca, modelo, año_creacion, precio_usd, condicion = auto
+        marca, modelo, precio_usd = auto [1],auto [2],auto [4]
 
         # Obtener tipo de cambio de la API de BlueLytics
         response = requests.get("https://api.bluelytics.com.ar/v2/latest")
@@ -127,16 +127,12 @@ def precio_pesos(auto_id):
         # Calcular precio en pesos
         precio_en_pesos = precio_usd * tipo_cambio
         
-        auto_con_precio = {
-            "id": id,
+        return jsonify ({
             "marca": marca,
             "modelo": modelo,
-            "año_creacion": año_creacion,
             "precio_usd": precio_usd,
-            "precio_pesos": round (precio_en_pesos, 2),
-            "condicion": condicion
-            }
-        return jsonify(auto_con_precio), 200
+            "precio_pesos": round(precio_en_pesos, 2)
+        }), 200            
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

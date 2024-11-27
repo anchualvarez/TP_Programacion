@@ -92,7 +92,8 @@ def ver_precio_en_pesos():
     auto_id = int(input("Ingrese el ID del auto para ver el precio en pesos: "))
     response = requests.get(f"{base_url}/precio_pesos/{auto_id}")
     if response.status_code == 200:
-        print("Precio en pesos:", response.json())
+        auto_data = response.json ()
+        print(f"El auto {auto_data['marca']} {auto_data['modelo']} cuesta {auto_data['precio_usd']} USD o {auto_data['precio_pesos']} pesos")
     else:
         print("Error:", response.json().get("error", "Auto no encontrado"))
 
@@ -180,10 +181,8 @@ def main():
         elif opcion == "9":
             actualizar_auto()
         elif opcion == "10":
-            print("Generando grafico...")
             generar_his()
         elif opcion == "11":
-            print("Generando gráfico...")
             generar_bar()
         elif opcion == "0":
             print("Saliendo del programa.")
