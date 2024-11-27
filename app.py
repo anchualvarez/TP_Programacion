@@ -136,7 +136,7 @@ def precio_pesos(auto_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Endpoint para actualizar un auto existente --> ERRORES
+# Endpoint para actualizar un auto existente 
 @app.route("/autos/<int:auto_id>", methods=["PUT"])
 def update_auto(auto_id):
     data = request.get_json()
