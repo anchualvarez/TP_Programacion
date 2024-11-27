@@ -72,7 +72,12 @@ def agregar_auto():
         "condicion": condicion
     }
     response = requests.post(f"{base_url}/add_autos", json=data)
-    print(response.json())
+    
+    # Me daba error pq no era json, asi que lo chequeo con un try por si falla no me rompa el programa
+    try:
+        print(response.json())
+    except requests.exceptions.JSONDecodeError:
+        print("Error al decodificar la respuesta como JSON. Verifica el servidor.")
 
 
 # Función para ver el precio en pesos de un auto específico PREGUNTAR COMO PONER DOLARES TB

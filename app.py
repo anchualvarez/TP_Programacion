@@ -94,7 +94,8 @@ def add_auto():
         # Get the last inserted auto id
         auto_id = cursor.lastrowid
 
-        return (f"El auto ({marca}, {modelo}) fue agregado con exito, su id {auto_id}"), 201
+        return jsonify({"message": f"El auto ({marca}, {modelo}) fue agregado con éxito", "id": auto_id}), 201
+
 
     except sqlite3.Error as e:
         # En caso de error en la consulta
