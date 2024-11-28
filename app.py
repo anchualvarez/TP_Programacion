@@ -54,52 +54,48 @@ def get_autos():
     return jsonify(clean_autos), 200
 
 # Endpoint para agregar un auto nuevo
+
 @app.route("/add_autos", methods=["POST"])
 def add_auto():
     data = request.get_json()
     
-#    print(data)  # Imprime los datos recibidos
-    
     if not data:
-        return jsonify ({"Error": "No se recibieron datos"}), 400
+        return jsonify({"error": "No se recibieron datos"}), 400
     
-#    id = data.get("id") 
     marca = data.get("marca")
     modelo = data.get("modelo")
     año_creacion = data.get("año_creacion")
     precio_usd = data.get("precio_usd")
     condicion = data.get("condicion")
 
-    if not (marca and modelo and año_creacion and precio_usd and condicion):
-        return jsonify({"Error": "Faltan datos necesarios"}), 400
+    # Validar que todos los campos necesarios estén presentes
+    if not all([marca, modelo, año_creacion, precio_usd, condicion]):
+        return jsonify({"error": "Faltan datos necesarios"}), 400
+
+    # Validar tipos de datos
+    try:
+        año_creacion = int(año_creacion)
+    except ValueError:
+        return jsonify({"error": "El año de creación debe ser un número entero válido"}), 400
 
     try:
         precio_usd = float(precio_usd)
     except ValueError:
         return jsonify({"error": "El precio debe ser un número válido"}), 400
 
-    conn = connect_to_database()
-    cursor = conn.cursor()
-    
     try:
-        cursor.execute("""
-            INSERT INTO autos (marca, modelo, año_creacion, precio_usd, condicion) 
-            VALUES (?, ?, ?, ?, ?)
-        """, (marca, modelo, año_creacion, precio_usd, condicion))
-
-        # Confirmar los cambios y cerrar la conexión
-        conn.commit()
-        conn.close()
-        
-        # Ultimo id ingresado
-        auto_id = cursor.lastrowid
+        with connect_to_database() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO autos (marca, modelo, año_creacion, precio_usd, condicion) 
+                VALUES (?, ?, ?, ?, ?)
+            """, (marca, modelo, año_creacion, precio_usd, condicion))
+            conn.commit()
+            auto_id = cursor.lastrowid
 
         return jsonify({"message": f"El auto ({marca}, {modelo}) fue agregado con éxito", "id": auto_id}), 201
 
-
     except sqlite3.Error as e:
-        # En caso de error en la consulta
-        conn.close()
         return jsonify({"error": f"Error al agregar auto: {e}"}), 500
 
 
